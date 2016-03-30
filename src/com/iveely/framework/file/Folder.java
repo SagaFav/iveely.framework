@@ -11,7 +11,6 @@ import java.io.IOException;
  * Folder operator.
  *
  * @author liufanping@iveely.com
- * @date 2014-10-22 22:49:52
  */
 public class Folder {
 

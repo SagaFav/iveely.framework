@@ -9,7 +9,6 @@ import java.net.UnknownHostException;
  * Internet
  *
  * @author liufanping@iveely.com
- * @date 2014-11-13 20:24:13
  */
 public class Internet {
 

@@ -9,7 +9,6 @@ import org.eclipse.jetty.server.Server;
  * Websocket.
  *
  * @author liufanping@iveely.com
- * @date 2014-12-2 22:26:28
  */
 public class SocketServer {
 

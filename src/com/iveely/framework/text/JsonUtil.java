@@ -12,7 +12,6 @@ import java.util.List;
 /**
  *
  * @author liufanping@iveely.com
- * @date 2015-1-25 16:51:33
  */
 public class JsonUtil {
 

@@ -1,5 +1,4 @@
 /**
- * date   : 2016年1月27日
  * author : Iveely Liu
  * contact: sea11510@mail.ustc.edu.cn
  */
@@ -152,7 +151,7 @@ public class StringUtil {
 	}
 
 	/**
-	 * Check a string whether is a telephone number(mobile & ip phone).
+	 * Check a string whether is a telephone number(mobile \ ip phone).
 	 * 
 	 * @param val
 	 *            The string to be check.

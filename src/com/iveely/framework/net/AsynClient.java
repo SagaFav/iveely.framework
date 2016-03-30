@@ -1,5 +1,4 @@
 /**
- * date   : 2016年1月30日
  * author : Iveely Liu
  * contact: sea11510@mail.ustc.edu.cn
  */
@@ -14,9 +13,12 @@ import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory;
 import org.apache.mina.filter.codec.textline.TextLineCodecFactory;
 import org.apache.mina.transport.socket.SocketConnector;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
+
+import com.iveely.framework.text.JsonUtil;
 
 /**
  * @author {Iveely Liu}
@@ -24,143 +26,149 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
  */
 public class AsynClient {
 
-	protected class InnerHanlder extends IoHandlerAdapter {
+    protected class InnerHanlder extends IoHandlerAdapter {
 
-		private void releaseSession(IoSession session) throws Exception {
-			if (session.isConnected()) {
-				session.close();
-			}
-		}
+        private void releaseSession(IoSession session) throws Exception {
+            if (session.isConnected()) {
+                session.close();
+            }
+        }
 
-		@Override
-		public void sessionOpened(IoSession session) throws Exception {
+        @Override
+        public void sessionOpened(IoSession session) throws Exception {
 
-		}
+        }
 
-		@Override
-		public void sessionClosed(IoSession session) throws Exception {
+        @Override
+        public void sessionClosed(IoSession session) throws Exception {
 
-		}
+        }
 
-		@Override
-		public void sessionIdle(IoSession session, IdleStatus status) throws Exception {
-			try {
-				releaseSession(session);
-			} catch (RuntimeIoException e) {
-			}
-		}
+        @Override
+        public void sessionIdle(IoSession session, IdleStatus status) throws Exception {
+            try {
+                releaseSession(session);
+            } catch (RuntimeIoException e) {
+            }
+        }
 
-		@Override
-		public void messageReceived(IoSession session, Object message) throws Exception {
-			super.messageReceived(session, message);
-			handler.receive(message.toString());
-			releaseSession(session);
-		}
+        @Override
+        public void messageReceived(IoSession session, Object message) throws Exception {
+            super.messageReceived(session, message);
+            if (handler != null) {
+                handler.receive(message);
+            }
+            releaseSession(session);
+        }
 
-		@Override
-		public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-			cause.printStackTrace();
-			releaseSession(session);
-			handler.caught(cause.toString());
-		}
+        @Override
+        public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+            cause.printStackTrace();
+            releaseSession(session);
+            if (handler != null) {
+                handler.caught(cause.toString());
+            }
+        }
 
-		@Override
-		public void messageSent(IoSession session, Object message) throws Exception {
-			super.messageSent(session, message);
-		}
+        @Override
+        public void messageSent(IoSession session, Object message) throws Exception {
+            super.messageSent(session, message);
+        }
 
-	}
+    }
 
-	public interface IHandler {
+    public interface IHandler {
 
-		/**
-		 * Receive message from server.
-		 * 
-		 * @param info
-		 *            The received message.
-		 */
-		public void receive(String info);
+        /**
+         * Receive message from server.
+         * 
+         * @param packet
+         *            The received message.
+         */
+        public void receive(Object packet);
 
-		/**
-		 * Exception caught.
-		 * 
-		 * @param exception
-		 *            The exception information.
-		 */
-		public void caught(String exception);
-	}
+        /**
+         * Exception caught.
+         * 
+         * @param exception
+         *            The exception information.
+         */
+        public void caught(String exception);
+    }
 
-	/**
-	 * Connector to connect server.
-	 */
-	protected SocketConnector connector;
+    /**
+     * Connector to connect server.
+     */
+    protected SocketConnector connector;
 
-	/**
-	 * IP address of the server.
-	 */
-	private String ipAddress;
+    /**
+     * IP address of the server.
+     */
+    private String ipAddress;
 
-	/**
-	 * Service port of server.
-	 */
-	private int port;
+    /**
+     * Service port of server.
+     */
+    private int port;
 
-	/**
-	 * Handler.
-	 */
-	protected IHandler handler;
+    /**
+     * Handler.
+     */
+    protected IHandler handler;
 
-	/**
-	 * Default timeout of connection.
-	 */
-	public static final int DEFAULT_CONNECT_TIMEOUT = 5;
+    /**
+     * Default timeout of connection.
+     */
+    public static final int DEFAULT_CONNECT_TIMEOUT = 5;
 
-	public AsynClient(String ipAddress, int port, IHandler handler) {
-		this.ipAddress = ipAddress;
-		this.port = port;
-		this.handler = handler;
-		this.connector = new NioSocketConnector();
-		this.connector.setConnectTimeout(DEFAULT_CONNECT_TIMEOUT);
-		this.connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new TextLineCodecFactory()));
-		this.connector.setHandler(new InnerHanlder());
-	}
+    public AsynClient(String ipAddress, int port, IHandler handler) {
+        this.ipAddress = ipAddress;
+        this.port = port;
+        this.handler = handler;
+        this.connector = new NioSocketConnector();
+        this.connector.setConnectTimeout(DEFAULT_CONNECT_TIMEOUT);
+        this.connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new TextLineCodecFactory()));
+        this.connector.setHandler(new InnerHanlder());
+        this.connector.getFilterChain().addLast("object_ser",
+                new ProtocolCodecFilter(new ObjectSerializationCodecFactory()));
+    }
 
-	/**
-	 * Send message to server.
-	 * 
-	 * @param msg
-	 */
-	public boolean send(String msg) {
-		ConnectFuture future = this.connector.connect(new InetSocketAddress(this.ipAddress, this.port));
-		try {
-			future.awaitUninterruptibly();
-			future.getSession().write(msg);
-			return true;
-		} catch (RuntimeIoException e) {
-			e.printStackTrace();
-			if (e.getCause() instanceof ConnectException) {
-				try {
-					if (future.isConnected()) {
-						future.getSession().close();
-					}
-				} catch (RuntimeIoException e1) {
-					e1.printStackTrace();
-				}
-			}
-		}
-		return false;
-	}
+    /**
+     * Send message to server.
+     * 
+     * @param msg
+     */
+    public boolean send(Object msg) {
+        ConnectFuture future = this.connector.connect(new InetSocketAddress(this.ipAddress, this.port));
+        try {
+            future.awaitUninterruptibly();
+            future.getSession().write(msg);
+            return true;
+        } catch (RuntimeIoException e) {
+            e.printStackTrace();
+            if (e.getCause() instanceof ConnectException) {
+                try {
+                    if (future.isConnected()) {
+                        future.getSession().close();
+                    }
+                } catch (RuntimeIoException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+        return false;
+    }
 
-	/**
-	 * Close connection.
-	 * 
-	 * @return
-	 */
-	public boolean close() {
-		if (!this.connector.isDisposed()) {
-			this.connector.dispose();
-			return true;
-		}
-		return false;
-	}
+    /**
+     * Close connection.
+     * 
+     * @return
+     */
+    public boolean close() {
+        if (!this.connector.isDisposed()) {
+            this.connector.dispose();
+            return true;
+        }
+        return false;
+    }
 }
