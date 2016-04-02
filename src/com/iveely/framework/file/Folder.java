@@ -10,7 +10,7 @@ import java.io.IOException;
 /**
  * Folder operator.
  *
- * @author liufanping@iveely.com
+ * @author sea11510@mail.ustc.edu.cn
  */
 public class Folder {
 

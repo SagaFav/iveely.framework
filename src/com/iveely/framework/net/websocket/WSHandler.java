@@ -12,7 +12,7 @@ import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
 /**
  *
- * @author liufanping@iveely.com
+ * @author sea11510@mail.ustc.edu.cn
  */
 @WebSocket
 public class WSHandler extends WebSocketHandler {

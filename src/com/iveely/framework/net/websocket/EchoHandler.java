@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 /**
  * Websocket echo handler.
  *
- * @author liufanping@iveely.com
+ * @author sea11510@mail.ustc.edu.cn
  */
 public class EchoHandler implements Runnable {
 
@@ -112,7 +112,7 @@ public class EchoHandler implements Runnable {
                     int read = inputStream.read(first, 0, 1);
                     while (read > 0) {
                         int b = first[0] & 0xFF;
-                        // 1 means dataï¼?8 is close socket.
+                        // 1 means data is close socket.
                         byte opCode = (byte) (b & 0x0F);
 
                         if (opCode == 8) {

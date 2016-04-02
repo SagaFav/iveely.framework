@@ -1,5 +1,4 @@
 /**
- * date   : 2016年1月31日
  * author : Iveely Liu
  * contact: sea11510@mail.ustc.edu.cn
  */

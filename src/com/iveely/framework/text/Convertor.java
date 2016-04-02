@@ -3,7 +3,7 @@ package com.iveely.framework.text;
 /**
  * Convertor for int and byte[4].
  *
- * @author liufanping@iveely.com
+ * @author sea11510@mail.ustc.edu.cn
  */
 public class Convertor {
 

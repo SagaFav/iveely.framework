@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 /**
  * Jar loader and executor.
  *
- * @author liufanping@iveely.com
+ * @author sea11510@mail.ustc.edu.cn
  */
 public class JarExecutor {
 

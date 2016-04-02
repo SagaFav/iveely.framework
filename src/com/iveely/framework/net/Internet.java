@@ -8,7 +8,7 @@ import java.net.UnknownHostException;
 /**
  * Internet
  *
- * @author liufanping@iveely.com
+ * @author sea11510@mail.ustc.edu.cn
  */
 public class Internet {
 
